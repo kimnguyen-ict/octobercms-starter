@@ -1,0 +1,56 @@
+version: "2"
+services:
+    web:
+        container_name: october_workspace
+        image: kimnguyen/workspace-php:7.1
+        volumes:
+            - ./:/var/www/workspace
+        tty: true
+        restart: always
+    nginx:
+        container_name: october_ngnix
+        image: nginx
+        ports:
+            - "${DOCKER_HTTP_PORT}:80"
+        volumes_from:
+            - web
+        volumes:
+            - .nginx/nginx.conf:/etc/nginx/nginx.conf
+        links:
+            - php
+        restart: always
+    php:
+        container_name: october_php-fpm
+        image: php:7.1-fpm
+        expose:
+            - "9000"
+        volumes_from:
+            - web
+        links:
+            - mysql
+            - memcached
+            - redis
+        restart: always
+    mysql:
+        container_name: october_mysql
+        image: mariadb
+        environment:
+            MYSQL_DATABASE: ${DB_DATABASE}
+            MYSQL_USER: ${DB_USERNAME}
+            MYSQL_PASSWORD: ${DB_PASSWORD}
+            MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+        ports:
+            - "33060:3306"
+        volumes_from:
+            - web
+        volumes:
+            - .docker/mysql:/var/lib/mysql
+        restart: always
+    memcached:
+        container_name: october_memcached
+        image: memcached
+    redis:
+        container_name: october_redis
+        image: kimnguyen/docker-redis
+        expose:
+          - "6379"

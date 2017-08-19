@@ -1,0 +1,27 @@
+version: '2'
+services:
+  web:
+    container_name: october_web
+    image: "dragontek/octobercms"
+    ports:
+      - "${DOCKER_HTTP_PORT}:80"
+    volumes:
+      - ./:/var/www/html
+  mysql:
+    container_name: october_mysql
+    image: "mariadb"
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - .docker/mysql:/var/lib/mysql
+  memcached:
+    container_name: october_memcached
+    image: "memcached"
+  redis:
+    container_name: october_redis
+    image: kimnguyen/docker-redis
+    expose:
+      - "6379"
